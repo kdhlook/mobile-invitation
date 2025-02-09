@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>모바일 청첩장</title>
+    <style>
+        /* 기존 스타일 유지 */
+        body { font-family: Arial, sans-serif; text-align: center; background-color: #f8f8f8; margin: 0; }
+        .container {
+            max-width: 800px;
+            width: 90%;
+            margin: 0 auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .section {
+            display: none;
+            padding: 40px 10px;
+            width: 100%;
+        }
+        .fade-in { opacity: 0; transition: opacity 1s ease-in-out; }
+        .intro p { font-size: 18px; font-weight: bold; opacity: 0; transition: opacity 1s ease-in-out; }
+        .split { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+        .split img { width: 100%; max-width: 360px; border-radius: 10px; }
+        .gallery {
+            display: grid;
+            gap: 10px;
+            padding: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            grid-auto-rows: 150px;
+            grid-auto-flow: dense;
+        }
+        .gallery img {
+            width: 100%;
+            height: 100%;
+            border-radius: 10px;
+            object-fit: cover;
+            cursor: pointer;
+        }
+        .lightbox {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+            touch-action: none;
+        }
+        /* 이미지 컨테이너 스타일 추가 */
+        .lightbox-image-container {
+            position: relative;
+            width: 90%;
+            height: 90%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .lightbox img {
+            position: absolute;
+            max-width: 100%;
+            max-height: 100%;
+            border-radius: 10px;
+            user-select: none;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+        .lightbox img.active {
+            opacity: 1;
+        }
+        .lightbox.active {
+            display: flex;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .navigation-buttons {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+            z-index: 1001;
+        }
+        .nav-button {
+            background: rgba(255, 255, 255, 0.3);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div id="intro" class="section intro">
+            <p>안녕하세요, 소중한 분들을 초대합니다.</p>
+            <p>우리가 함께하는 특별한 날을 축하해 주세요.</p>
+        </div>
+
+        <div id="photos" class="section">
+            <h2>신랑 & 신부</h2>
+            <div class="split">
+                <img src="photos/groom.jpg" alt="신랑 사진">
+                <img src="photos/bride.jpg" alt="신부 사진">
+            </div>
+        </div>
+
+        <div id="gallery" class="section">
+            <h2>웨딩 촬영</h2>
+            <div class="gallery" id="gallery-container"></div>
+        </div>
+
+        <div id="location" class="section">
+            <h2>예식장 위치</h2>
+            <p>서울 강남구 ○○웨딩홀</p>
+            <a href="https://goo.gl/maps/example" target="_blank">📍 지도 보기</a>
+        </div>
+    </div>
+
+    <div class="lightbox" id="lightbox">
+        <div class="lightbox-image-container" id="lightbox-container">
+            <!-- 이미지들은 JavaScript에서 동적으로 추가됩니다 -->
+        </div>
+        <div class="navigation-buttons">
+            <button class="nav-button" id="prev-button">이전</button>
+            <button class="nav-button" id="next-button">다음</button>
+            <button class="nav-button" id="close-button">닫기</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            let sections = document.querySelectorAll(".section");
+            let intro = document.getElementById("intro");
+            let textLines = intro.querySelectorAll("p");
+            let index = 0;
+            let allImages = [];
+            let currentImageIndex = 0;
+            let isTransitioning = false;
+
+            function showText() {
+                if (index < textLines.length) {
+                    let text = textLines[index];
+                    text.style.opacity = "1";
+                    index++;
+                    setTimeout(showText, 1000);
+                } else {
+                    showNextSection(1);
+                }
+            }
+
+            function showNextSection(i) {
+                if (i < sections.length) {
+                    sections[i].style.display = "block";
+                    sections[i].classList.add("fade-in");
+                    setTimeout(() => { sections[i].style.opacity = "1"; showNextSection(i + 1); }, 1000);
+                }
+            }
+
+            sections[0].style.display = "block";
+            showText();
+
+            // 갤러리 이미지 로드
+            const galleryContainer = document.getElementById("gallery-container");
+            const lightboxContainer = document.getElementById("lightbox-container");
+            let imageIndex = 0;
+
+            function loadImages() {
+                let img = new Image();
+                img.src = `gallery/wedding${imageIndex}.jpg`;
+                img.alt = `웨딩 사진 ${imageIndex}`;
+                img.onload = function() {
+                    let randomSize = Math.random();
+                    if (randomSize > 0.7) {
+                        img.style.gridColumn = "span 2";
+                        img.style.gridRow = "span 2";
+                    } else if (randomSize > 0.4) {
+                        img.style.gridColumn = "span 2";
+                    } else if (randomSize > 0.2) {
+                        img.style.gridRow = "span 2";
+                    }
+                    img.addEventListener("click", () => openLightbox(img.src));
+                    galleryContainer.appendChild(img);
+                    allImages.push(img.src);
+
+                    // 라이트박스용 이미지 요소 생성
+                    const lightboxImg = document.createElement('img');
+                    lightboxImg.src = img.src;
+                    lightboxImg.alt = img.alt;
+                    lightboxImg.dataset.index = imageIndex;
+                    lightboxContainer.appendChild(lightboxImg);
+
+                    imageIndex++;
+                    loadImages();
+                };
+                img.onerror = function() {
+                    console.log("No more images found.");
+                };
+            }
+            loadImages();
+
+            // Lightbox functionality
+            const lightbox = document.getElementById("lightbox");
+            const prevButton = document.getElementById("prev-button");
+            const nextButton = document.getElementById("next-button");
+            const closeButton = document.getElementById("close-button");
+            let startX = 0;
+            let currentX = 0;
+
+            function openLightbox(src) {
+                currentImageIndex = allImages.indexOf(src);
+                lightbox.classList.add("active");
+                updateActiveImage();
+            }
+
+            function updateActiveImage() {
+                const images = lightboxContainer.querySelectorAll('img');
+                images.forEach(img => img.classList.remove('active'));
+                images[currentImageIndex].classList.add('active');
+            }
+
+            function showPrevImage() {
+                if (isTransitioning) return;
+                isTransitioning = true;
+
+                const currentImg = lightboxContainer.querySelectorAll('img')[currentImageIndex];
+                currentImageIndex = (currentImageIndex - 1 + allImages.length) % allImages.length;
+
+                currentImg.classList.remove('active');
+                setTimeout(() => {
+                    updateActiveImage();
+                    isTransitioning = false;
+                }, 300);
+            }
+
+            function showNextImage() {
+                if (isTransitioning) return;
+                isTransitioning = true;
+
+                const currentImg = lightboxContainer.querySelectorAll('img')[currentImageIndex];
+                currentImageIndex = (currentImageIndex + 1) % allImages.length;
+
+                currentImg.classList.remove('active');
+                setTimeout(() => {
+                    updateActiveImage();
+                    isTransitioning = false;
+                }, 300);
+            }
+
+            // 클릭 이벤트 핸들러 수정
+            lightbox.addEventListener("click", (e) => {
+                // 클릭된 요소나 그 부모가 이미지, 버튼이 아닌 경우에만 라이트박스 닫기
+                if (!e.target.closest('.lightbox-image-container') &&
+                    !e.target.closest('.navigation-buttons')) {
+                    lightbox.classList.remove("active");
+                }
+            });
+
+            // 터치 이벤트 핸들러 수정
+            lightbox.addEventListener("touchstart", (e) => {
+                // 이미지 영역이나 버튼 영역을 터치한 경우에만 스와이프 동작 처리
+                if (e.target.closest('.lightbox-image-container') ||
+                    e.target.closest('.navigation-buttons')) {
+                    startX = e.touches[0].clientX;
+                    e.preventDefault();
+                }
+            });
+
+            lightbox.addEventListener("touchmove", (e) => {
+                if (startX && (e.target.closest('.lightbox-image-container') ||
+                              e.target.closest('.navigation-buttons'))) {
+                    currentX = e.touches[0].clientX;
+                    e.preventDefault();
+                }
+            });
+
+            lightbox.addEventListener("touchend", (e) => {
+                if (startX && currentX && (e.target.closest('.lightbox-image-container') ||
+                                         e.target.closest('.navigation-buttons'))) {
+                    const diff = startX - currentX;
+                    if (Math.abs(diff) > 50) {
+                        if (diff > 0) {
+                            showNextImage();
+                        } else {
+                            showPrevImage();
+                        }
+                    }
+                }
+                startX = 0;
+                currentX = 0;
+            });
+
+            prevButton.addEventListener("click", showPrevImage);
+            nextButton.addEventListener("click", showNextImage);
+            closeButton.addEventListener("click", function() {
+                lightbox.classList.remove("active");
+            });
+
+            lightbox.addEventListener("click", (e) => {
+                if (e.target === lightbox) {
+                    lightbox.classList.remove("active");
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>
