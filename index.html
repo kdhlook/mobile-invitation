@@ -5,8 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>모바일 청첩장</title>
     <style>
-        /* 기존 스타일 유지 */
-        body { font-family: Arial, sans-serif; text-align: center; background-color: #f8f8f8; margin: 0; }
+        @import url('https://fonts.googleapis.com/css2?family=Gowun+Dodum&display=swap');
+
+        body {
+            font-family: 'Gowun Dodum', sans-serif;
+            text-align: center;
+            background-color: #fdfdfd;
+            color: #555;
+            margin: 0;
+        }
         .container {
             max-width: 800px;
             width: 90%;
@@ -23,34 +30,65 @@
         }
         .fade-in { opacity: 0; transition: opacity 1s ease-in-out; }
         .intro p { font-size: 18px; font-weight: bold; opacity: 0; transition: opacity 1s ease-in-out; }
-        .split { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
-        .split img { width: 100%; max-width: 360px; border-radius: 10px; }
+        .split {
+            display: flex;
+            justify-content: center;
+            gap: 0;
+            flex-wrap: nowrap;
+            width: 100%;
+        }
+
+        .person {
+            width: 50%;
+            text-align: center;
+        }
+
+        .person img {
+            width: 100%;
+            border-radius: 10px;
+            object-fit: cover;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .split-text {
+            margin-top: 10px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
         .gallery {
             display: grid;
             gap: 10px;
             padding: 20px;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            grid-template-columns: repeat(3, 1fr);
             grid-auto-rows: 150px;
             grid-auto-flow: dense;
         }
-        .gallery img {
+        .gallery img, .emoji-placeholder {
             width: 100%;
             height: 100%;
             border-radius: 10px;
             object-fit: cover;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: bold;
+            color: #888;
+            background: rgba(245, 245, 245, 0.5);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
         }
         .lightbox {
             display: none;
             position: fixed;
             top: 0; left: 0;
             width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(240, 240, 240, 0.8);
             justify-content: center;
             align-items: center;
             touch-action: none;
         }
-        /* 이미지 컨테이너 스타일 추가 */
         .lightbox-image-container {
             position: relative;
             width: 90%;
@@ -89,14 +127,114 @@
             z-index: 1001;
         }
         .nav-button {
-            background: rgba(255, 255, 255, 0.3);
+            background: rgba(240, 240, 240, 0.6);
             border: none;
-            color: white;
+            color: #555;
             padding: 10px 20px;
             border-radius: 20px;
             cursor: pointer;
         }
+
+        a {
+            display: inline-block;
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #f0f0f0, #e8e8e8);
+            color: #666;
+            font-weight: bold;
+            text-decoration: none;
+            font-size: 16px;
+            border-radius: 30px;
+            transition: all 0.3s ease-in-out;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        a:hover {
+            background: linear-gradient(135deg, #e8e8e8, #f0f0f0);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        a:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+        }
+
+        .account-section {
+            width: 100%;
+            max-width: 600px;
+            margin-top: 20px;
+        }
+        .dropdown {
+            width: 100%;
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 8px;
+        }
+        .account-list {
+            display: none;
+            background: #ffffff;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-top: 5px;
+            border-radius: 8px;
+            text-align: left;
+        }
+        .account-item {
+            padding: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            border-bottom: 1px solid #eee;
+        }
+        .account-item:last-child {
+            border-bottom: none;
+        }
+        .account-item:hover {
+            background: #f0f0f0;
+        }
+        .copy-alert {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+        .wedding-date {
+            font-size: 18px;
+            color: #555;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .countdown-timer {
+            font-size: 24px;
+            font-weight: bold;
+            color: #555;
+            padding: 10px;
+        }
+
+        @media (max-width: 400px) {
+            .split {
+                flex-direction: row;
+            }
+            .person {
+                width: 50%;
+            }
+            .account-card {
+                width: 100%;
+            }
+        }
+
     </style>
+
 </head>
 <body>
 
@@ -109,8 +247,16 @@
         <div id="photos" class="section">
             <h2>신랑 & 신부</h2>
             <div class="split">
-                <img src="photos/groom.jpg" alt="신랑 사진">
-                <img src="photos/bride.jpg" alt="신부 사진">
+                <div class="person">
+                    <img src="photos/groom.jpg" alt="신랑 사진">
+                    <p class="split-text">○○○, ○○○의 장남</p>
+                    <p>🤵 OOO</p>
+                </div>
+                <div class="person">
+                    <img src="photos/bride.jpg" alt="신부 사진">
+                    <p class="split-text">○○○, ○○○의 차녀</p>
+                    <p>👰 OOO</p>
+                </div>
             </div>
         </div>
 
@@ -119,11 +265,42 @@
             <div class="gallery" id="gallery-container"></div>
         </div>
 
+        <div class="section">
+            <h2>⏳ 예식일까지 남은 시간</h2>
+            <p id="wedding-date" class="wedding-date"></p>
+            <div id="countdown-timer" class="countdown-timer"></div>
+        </div>
+
         <div id="location" class="section">
             <h2>예식장 위치</h2>
-            <p>서울 강남구 ○○웨딩홀</p>
-            <a href="https://goo.gl/maps/example" target="_blank">📍 지도 보기</a>
+            <a href="https://m.place.naver.com/place/13355247/home?entry=pll" target="_blank">
+            <img src="photos/location.jpg" alt="예식장 지도" style="width: 100%; max-width: 600px; border-radius: 10px; margin-top: 10px;">
+            <p>더컨벤션 잠실</p>
+            <p>서울 송파구 올림픽로 319 3층<br/>2호선,8호선 잠실역 9번출구 도보 1분</p>
+            </a>
         </div>
+
+        <div class="section">
+            <h2>마음 전하실 곳</h2>
+
+            <button class="dropdown" onclick="toggleDropdown('groom-accounts')">💙 신랑 측</button>
+            <div id="groom-accounts" class="account-list">
+                <div class="account-item" onclick="copyAccount('123-4567-8901')">예금주: OOO, 신한) 123-4567-8901</div>
+                <div class="account-item" onclick="copyAccount('234-5678-9012')">신랑 모 계좌</div>
+                <div class="account-item" onclick="copyAccount('345-6789-0123')">신랑 계좌</div>
+            </div>
+
+            <button class="dropdown" onclick="toggleDropdown('bride-accounts')">💖 신부 측</button>
+            <div id="bride-accounts" class="account-list">
+                <div class="account-item" onclick="copyAccount('456-7890-1234')">신부 부 계좌</div>
+                <div class="account-item" onclick="copyAccount('567-8901-2345')">신부 모 계좌</div>
+                <div class="account-item" onclick="copyAccount('678-9012-3456')">신부 계좌</div>
+            </div>
+        </div>
+
+        <!-- 복사 완료 알림 -->
+        <div id="copy-alert" class="copy-alert">계좌번호가 복사되었습니다!</div>
+
     </div>
 
     <div class="lightbox" id="lightbox">
@@ -146,6 +323,9 @@
             let allImages = [];
             let currentImageIndex = 0;
             let isTransitioning = false;
+            let startX = 0;
+            let currentX = 0;
+            let isSwiping = false;
 
             function showText() {
                 if (index < textLines.length) {
@@ -173,21 +353,13 @@
             const galleryContainer = document.getElementById("gallery-container");
             const lightboxContainer = document.getElementById("lightbox-container");
             let imageIndex = 0;
+            let weddingEmojis = ["💍", "💖", "🎉", "❤️", "👰", "🤵", "💒", "✨"];
 
             function loadImages() {
                 let img = new Image();
                 img.src = `gallery/wedding${imageIndex}.jpg`;
                 img.alt = `웨딩 사진 ${imageIndex}`;
                 img.onload = function() {
-                    let randomSize = Math.random();
-                    if (randomSize > 0.7) {
-                        img.style.gridColumn = "span 2";
-                        img.style.gridRow = "span 2";
-                    } else if (randomSize > 0.4) {
-                        img.style.gridColumn = "span 2";
-                    } else if (randomSize > 0.2) {
-                        img.style.gridRow = "span 2";
-                    }
                     img.addEventListener("click", () => openLightbox(img.src));
                     galleryContainer.appendChild(img);
                     allImages.push(img.src);
@@ -206,15 +378,13 @@
                     console.log("No more images found.");
                 };
             }
+
             loadImages();
 
-            // Lightbox functionality
             const lightbox = document.getElementById("lightbox");
             const prevButton = document.getElementById("prev-button");
             const nextButton = document.getElementById("next-button");
             const closeButton = document.getElementById("close-button");
-            let startX = 0;
-            let currentX = 0;
 
             function openLightbox(src) {
                 currentImageIndex = allImages.indexOf(src);
@@ -231,86 +401,131 @@
             function showPrevImage() {
                 if (isTransitioning) return;
                 isTransitioning = true;
-
-                const currentImg = lightboxContainer.querySelectorAll('img')[currentImageIndex];
                 currentImageIndex = (currentImageIndex - 1 + allImages.length) % allImages.length;
-
-                currentImg.classList.remove('active');
-                setTimeout(() => {
-                    updateActiveImage();
-                    isTransitioning = false;
-                }, 300);
+                updateActiveImage();
+                setTimeout(() => { isTransitioning = false; }, 300);
             }
 
             function showNextImage() {
                 if (isTransitioning) return;
                 isTransitioning = true;
-
-                const currentImg = lightboxContainer.querySelectorAll('img')[currentImageIndex];
                 currentImageIndex = (currentImageIndex + 1) % allImages.length;
-
-                currentImg.classList.remove('active');
-                setTimeout(() => {
-                    updateActiveImage();
-                    isTransitioning = false;
-                }, 300);
+                updateActiveImage();
+                setTimeout(() => { isTransitioning = false; }, 300);
             }
 
-            // 클릭 이벤트 핸들러 수정
-            lightbox.addEventListener("click", (e) => {
-                // 클릭된 요소나 그 부모가 이미지, 버튼이 아닌 경우에만 라이트박스 닫기
-                if (!e.target.closest('.lightbox-image-container') &&
-                    !e.target.closest('.navigation-buttons')) {
-                    lightbox.classList.remove("active");
-                }
+            function closeLightbox() {
+                lightbox.classList.remove("active");
+            }
+
+            // 클릭 이벤트: 이벤트 충돌 방지를 위해 stopPropagation 사용
+            prevButton.addEventListener("click", (e) => {
+                e.stopPropagation();
+                showPrevImage();
             });
 
-            // 터치 이벤트 핸들러 수정
+            nextButton.addEventListener("click", (e) => {
+                e.stopPropagation();
+                showNextImage();
+            });
+
+            closeButton.addEventListener("click", (e) => {
+                e.stopPropagation();
+                closeLightbox();
+            });
+
+            // 터치 이벤트에서 stopPropagation 제거하여 스와이프 가능하도록 조정
+            prevButton.addEventListener("touchstart", (e) => {
+                e.preventDefault();
+                showPrevImage();
+            });
+
+            nextButton.addEventListener("touchstart", (e) => {
+                e.preventDefault();
+                showNextImage();
+            });
+
+            closeButton.addEventListener("touchstart", (e) => {
+                e.preventDefault();
+                closeLightbox();
+            });
+
+            // 스와이프 동작 추가
             lightbox.addEventListener("touchstart", (e) => {
-                // 이미지 영역이나 버튼 영역을 터치한 경우에만 스와이프 동작 처리
-                if (e.target.closest('.lightbox-image-container') ||
-                    e.target.closest('.navigation-buttons')) {
-                    startX = e.touches[0].clientX;
-                    e.preventDefault();
-                }
+                startX = e.touches[0].clientX;
+                isSwiping = true;
             });
 
             lightbox.addEventListener("touchmove", (e) => {
-                if (startX && (e.target.closest('.lightbox-image-container') ||
-                              e.target.closest('.navigation-buttons'))) {
-                    currentX = e.touches[0].clientX;
-                    e.preventDefault();
-                }
+                if (!isSwiping) return;
+                currentX = e.touches[0].clientX;
             });
 
-            lightbox.addEventListener("touchend", (e) => {
-                if (startX && currentX && (e.target.closest('.lightbox-image-container') ||
-                                         e.target.closest('.navigation-buttons'))) {
-                    const diff = startX - currentX;
-                    if (Math.abs(diff) > 50) {
-                        if (diff > 0) {
-                            showNextImage();
-                        } else {
-                            showPrevImage();
-                        }
+            lightbox.addEventListener("touchend", () => {
+                if (!isSwiping) return;
+                const diff = startX - currentX;
+                if (Math.abs(diff) > 50) {
+                    if (diff > 0) {
+                        showNextImage();
+                    } else {
+                        showPrevImage();
                     }
                 }
-                startX = 0;
-                currentX = 0;
+                isSwiping = false;
             });
 
-            prevButton.addEventListener("click", showPrevImage);
-            nextButton.addEventListener("click", showNextImage);
-            closeButton.addEventListener("click", function() {
-                lightbox.classList.remove("active");
-            });
-
+            // Lightbox 배경 클릭 시 닫기
             lightbox.addEventListener("click", (e) => {
-                if (e.target === lightbox) {
-                    lightbox.classList.remove("active");
+                if (!e.target.closest('.lightbox-image-container') &&
+                    !e.target.closest('.navigation-buttons')) {
+                    closeLightbox();
                 }
             });
+
         });
+
+        function toggleDropdown(id) {
+            const element = document.getElementById(id);
+            element.style.display = element.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function copyAccount(accountNumber) {
+            navigator.clipboard.writeText(accountNumber).then(() => {
+                const alertBox = document.getElementById('copy-alert');
+                alertBox.style.opacity = '1';
+                setTimeout(() => { alertBox.style.opacity = '0'; }, 1500);
+            }).catch(err => console.error("복사 실패:", err));
+        }
+
+        function updateCountdown() {
+            // 예식 날짜 설정 (YYYY, MM-1, DD, HH, MM, SS)
+            const weddingDate = new Date(2025, 6, 22, 11, 0, 0); // 2025년 6월 22일 11시
+
+            // 예식일 포맷팅 후 화면에 표시
+            const formattedDate = `📅 ${weddingDate.getFullYear()}년 ${weddingDate.getMonth() + 1}월 ${weddingDate.getDate()}일 ${weddingDate.getHours()}시 ${weddingDate.getMinutes()}분`;
+            document.getElementById("wedding-date").innerHTML = formattedDate;
+
+            const now = new Date();
+            const timeDiff = weddingDate - now;
+
+            if (timeDiff <= 0) {
+                document.getElementById("countdown-timer").innerHTML = "🎉 오늘은 예식일입니다!";
+                clearInterval(countdownInterval);
+                return;
+            }
+
+            const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
+
+            document.getElementById("countdown-timer").innerHTML =
+                `${days}일 ${hours}시간 ${minutes}분 ${seconds}초 남음 ⏳`;
+        }
+
+        // 1초마다 업데이트
+        const countdownInterval = setInterval(updateCountdown, 1000);
+        updateCountdown(); // 페이지 로드 시 즉시 실행
     </script>
 
 </body>
